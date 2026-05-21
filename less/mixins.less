@@ -1,0 +1,57 @@
+// =====================================================================
+// Aurora Theme — mixins
+// =====================================================================
+
+.aurora-glass(@blur: @aurora-blur, @opacity: 0.6) {
+    background: fade(@aurora-night-2, (@opacity * 100));
+    backdrop-filter: blur(@blur) saturate(160%);
+    -webkit-backdrop-filter: blur(@blur) saturate(160%);
+    border: 1px solid @aurora-mist-1;
+}
+
+.aurora-card {
+    .aurora-glass();
+    border-radius: @aurora-radius-md;
+    box-shadow:
+        0 1px 0 fade(#fff, 6%) inset,
+        0 12px 32px -16px fade(#000, 70%);
+}
+
+.aurora-gradient-border(@width: 1px) {
+    position: relative;
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        padding: @width;
+        border-radius: inherit;
+        background: @aurora-gradient;
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+                mask-composite: exclude;
+        pointer-events: none;
+    }
+}
+
+.aurora-shimmer(@duration: 8s) {
+    background-size: 200% 200%;
+    animation: aurora-shimmer @duration linear infinite;
+}
+
+.aurora-text-gradient {
+    background: @aurora-gradient;
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+            color: transparent;
+}
+
+.aurora-focus-ring {
+    outline: none;
+    box-shadow:
+        0 0 0 2px @aurora-night-0,
+        0 0 0 4px fade(@aurora-cyan, 60%);
+}
