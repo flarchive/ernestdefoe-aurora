@@ -1,0 +1,35 @@
+{
+    "name": "ernestdefoe/aurora",
+    "description": "An aurora-inspired theme for Flarum with vibrant gradients, glowing accents, and a modern glassmorphic feel.",
+    "keywords": ["flarum", "theme", "aurora", "gradient", "dark", "glassmorphism"],
+    "type": "flarum-extension",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "flarum/core": "^2.0.0-beta"
+    },
+    "authors": [
+        {
+            "name": "Ernest Defoe",
+            "email": "ernestdefoe@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "ErnestDefoe\\AuroraTheme\\": "src/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "Aurora Theme",
+            "category": "theme",
+            "icon": {
+                "name": "fas fa-mountain",
+                "backgroundColor": "#0b1437",
+                "color": "#a5f3fc"
+            }
+        }
+    },
+    "minimum-stability": "beta",
+    "prefer-stable": true
+}
