@@ -1,0 +1,163 @@
+// =====================================================================
+// Aurora Theme — variables
+// =====================================================================
+//
+// Two layers of tokens:
+//
+//  1. LESS variables (static, compile-time) — kept for build-time math
+//     like the gradient stops, glow shadows, and blob hues.
+//
+//  2. CSS custom properties (runtime, theme-swappable) — used by every
+//     surface and text rule in forum.less so the page restyles when the
+//     `<html data-theme>` attribute flips, without a recompile.
+//
+// The dark palette is the default. `[data-theme^='light']` overrides
+// every swappable property with the "Dawn" palette: cream-lavender
+// surfaces, deep-indigo text, the same gradient accent kept intact.
+// When no explicit data-theme is set we honor the OS via
+// @media (prefers-color-scheme: light) at the bottom of this file.
+
+// ---------------------------------------------------------------------
+// Accent colors — same in both themes (the aurora gradient is the brand)
+// ---------------------------------------------------------------------
+
+@aurora-violet:   #7c3aed;
+@aurora-indigo:   #4f46e5;
+@aurora-cyan:     #22d3ee;
+@aurora-teal:     #14b8a6;
+@aurora-pink:     #f472b6;
+@aurora-magenta:  #d946ef;
+@aurora-amber:    #fbbf24;
+
+// ---------------------------------------------------------------------
+// Dark palette — night-sky surfaces, kept as LESS vars for legacy code
+// paths and as static fallbacks for tooling.
+// ---------------------------------------------------------------------
+
+@aurora-night-0:  #05070f;
+@aurora-night-1:  #0b1024;
+@aurora-night-2:  #131a3a;
+@aurora-night-3:  #1c2350;
+
+@aurora-mist-0:   rgba(255, 255, 255, 0.04);
+@aurora-mist-1:   rgba(255, 255, 255, 0.08);
+@aurora-mist-2:   rgba(255, 255, 255, 0.12);
+@aurora-mist-3:   rgba(255, 255, 255, 0.18);
+
+@aurora-text:           #e5e7ff;
+@aurora-text-muted:     #9aa3c7;
+@aurora-text-dim:       #6b7299;
+
+// Default static gradient (used when CSS custom property is unsupported).
+@aurora-gradient-static: linear-gradient(120deg, @aurora-violet 0%, @aurora-indigo 35%, @aurora-cyan 70%, @aurora-teal 100%);
+
+// Runtime-swappable via the palette picker (see :root block below).
+@aurora-gradient:       ~"var(--aurora-gradient)";
+@aurora-gradient-soft:  linear-gradient(120deg, fade(@aurora-violet, 70%) 0%, fade(@aurora-cyan, 70%) 100%);
+@aurora-gradient-warm:  linear-gradient(120deg, @aurora-pink 0%, @aurora-magenta 50%, @aurora-violet 100%);
+
+@aurora-glow-cool:      0 0 24px fade(@aurora-cyan, 35%), 0 0 48px fade(@aurora-violet, 25%);
+@aurora-glow-warm:      0 0 24px fade(@aurora-pink, 35%), 0 0 48px fade(@aurora-magenta, 25%);
+
+// ---------------------------------------------------------------------
+// CSS custom properties — :root is dark by default
+// ---------------------------------------------------------------------
+
+:root {
+    --aurora-c1: @aurora-violet;
+    --aurora-c2: @aurora-indigo;
+    --aurora-c3: @aurora-cyan;
+    --aurora-c4: @aurora-teal;
+    --aurora-accent: @aurora-pink;
+
+    --aurora-blob-1: fade(@aurora-violet, 70%);
+    --aurora-blob-2: fade(@aurora-cyan, 60%);
+    --aurora-blob-3: fade(@aurora-magenta, 55%);
+    --aurora-blob-4: fade(@aurora-teal, 55%);
+    --aurora-blob-5: fade(@aurora-pink, 50%);
+
+    --aurora-gradient: linear-gradient(120deg, var(--aurora-c1) 0%, var(--aurora-c2) 35%, var(--aurora-c3) 70%, var(--aurora-c4) 100%);
+
+    // Theme-swappable surfaces. The `-rgb` triplets are used by rgba()
+    // calls that need partial transparency over a theme-aware base.
+    --aurora-surface-0:      #05070f;
+    --aurora-surface-1:      #0b1024;
+    --aurora-surface-2:      #131a3a;
+    --aurora-surface-3:      #1c2350;
+    --aurora-surface-0-rgb:  5, 7, 15;
+    --aurora-surface-1-rgb:  11, 16, 36;
+    --aurora-surface-2-rgb:  19, 26, 58;
+    --aurora-surface-3-rgb:  28, 35, 80;
+
+    --aurora-text:           #e5e7ff;
+    --aurora-text-muted:     #9aa3c7;
+    --aurora-text-dim:       #6b7299;
+
+    --aurora-mist-0:         rgba(255, 255, 255, 0.04);
+    --aurora-mist-1:         rgba(255, 255, 255, 0.08);
+    --aurora-mist-2:         rgba(255, 255, 255, 0.12);
+    --aurora-mist-3:         rgba(255, 255, 255, 0.18);
+
+    // Tint glass uses as its base (rgba'd in the .aurora-glass mixin).
+    --aurora-glass-rgb:      19, 26, 58;
+
+    // Body backdrop blob opacity multiplier — dimmed in light mode so
+    // the gradient blobs don't overwhelm the bright surface.
+    --aurora-blob-opacity:   1;
+
+    // Shadow depth multiplier — softer/lighter shadows in light mode.
+    --aurora-shadow-strength: 0.7;
+}
+
+// ---------------------------------------------------------------------
+// Light (Dawn) palette
+// ---------------------------------------------------------------------
+
+.aurora-light-tokens() {
+    --aurora-surface-0:      #faf5ff;
+    --aurora-surface-1:      #ffffff;
+    --aurora-surface-2:      #f5f3ff;
+    --aurora-surface-3:      #ede9fe;
+    --aurora-surface-0-rgb:  250, 245, 255;
+    --aurora-surface-1-rgb:  255, 255, 255;
+    --aurora-surface-2-rgb:  245, 243, 255;
+    --aurora-surface-3-rgb:  237, 233, 254;
+
+    --aurora-text:           #1e1b4b;
+    --aurora-text-muted:     #4c1d95;
+    --aurora-text-dim:       #6d28d9;
+
+    // Mist becomes a deep-indigo overlay so borders/dividers stay
+    // visible on bright surfaces.
+    --aurora-mist-0:         rgba(30, 27, 75, 0.04);
+    --aurora-mist-1:         rgba(30, 27, 75, 0.08);
+    --aurora-mist-2:         rgba(30, 27, 75, 0.14);
+    --aurora-mist-3:         rgba(30, 27, 75, 0.22);
+
+    --aurora-glass-rgb:      255, 255, 255;
+
+    --aurora-blob-opacity:   0.45;
+    --aurora-shadow-strength: 0.18;
+}
+
+[data-theme^='light'] { .aurora-light-tokens(); }
+
+// Honor OS preference when no explicit data-theme is set.
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme]) { .aurora-light-tokens(); }
+}
+
+// ---------------------------------------------------------------------
+// Sizing / motion tokens — theme-independent
+// ---------------------------------------------------------------------
+
+@aurora-radius-sm: 8px;
+@aurora-radius-md: 14px;
+@aurora-radius-lg: 22px;
+@aurora-radius-xl: 32px;
+
+@aurora-blur:     16px;
+@aurora-blur-lg:  28px;
+
+@aurora-ease:        cubic-bezier(0.22, 1, 0.36, 1);
+@aurora-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
