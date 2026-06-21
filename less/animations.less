@@ -1,0 +1,49 @@
+// =====================================================================
+// Aurora Theme — animations
+// =====================================================================
+
+@keyframes aurora-shimmer {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes aurora-drift {
+    0% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translate3d(-3%, 2%, 0) rotate(2deg);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+        opacity: 0.6;
+    }
+}
+
+@keyframes aurora-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 fade(@aurora-cyan, 50%);
+    }
+    50% {
+        box-shadow: 0 0 0 12px fade(@aurora-cyan, 0%);
+    }
+}
+
+@keyframes aurora-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+}
+
+@keyframes aurora-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
