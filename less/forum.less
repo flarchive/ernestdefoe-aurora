@@ -1,0 +1,980 @@
+// =====================================================================
+// Aurora Theme — forum frontend
+// =====================================================================
+
+@import "variables.less";
+@import "mixins.less";
+@import "animations.less";
+
+// ---------------------------------------------------------------------
+// Global background — animated aurora canvas
+// ---------------------------------------------------------------------
+
+body {
+    color: var(--aurora-text);
+    background: var(--aurora-surface-0);
+    position: relative;
+    min-height: 100vh;
+
+    &::before,
+    &::after {
+        content: "";
+        position: fixed;
+        inset: -20%;
+        z-index: -2;
+        pointer-events: none;
+        filter: blur(80px);
+        will-change: transform, opacity;
+        // Light mode dims the blobs so the gradient haze tints the
+        // bright surface rather than overwhelming it.
+        opacity: var(--aurora-blob-opacity, 1);
+    }
+
+    &::before {
+        background:
+            radial-gradient(40% 50% at 20% 20%, var(--aurora-blob-1) 0%, transparent 60%),
+            radial-gradient(35% 45% at 80% 10%, var(--aurora-blob-2) 0%, transparent 60%),
+            radial-gradient(45% 55% at 60% 80%, var(--aurora-blob-3) 0%, transparent 60%);
+        animation: aurora-drift 18s ease-in-out infinite;
+    }
+
+    &::after {
+        background:
+            radial-gradient(40% 45% at 80% 70%, var(--aurora-blob-4) 0%, transparent 60%),
+            radial-gradient(30% 35% at 10% 70%, var(--aurora-blob-5) 0%, transparent 60%);
+        animation: aurora-drift 24s ease-in-out infinite reverse;
+    }
+}
+
+// Subtle starfield overlay
+html::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        radial-gradient(1px 1px at 12% 18%, fade(#fff, 60%) 0, transparent 100%),
+        radial-gradient(1px 1px at 78% 32%, fade(#fff, 45%) 0, transparent 100%),
+        radial-gradient(1px 1px at 42% 76%, fade(#fff, 55%) 0, transparent 100%),
+        radial-gradient(1px 1px at 88% 88%, fade(#fff, 40%) 0, transparent 100%),
+        radial-gradient(1px 1px at 22% 60%, fade(#fff, 35%) 0, transparent 100%);
+    opacity: 0.6;
+}
+
+// ---------------------------------------------------------------------
+// Typography
+// ---------------------------------------------------------------------
+
+a {
+    color: @aurora-cyan;
+    transition: color 0.2s @aurora-ease, text-shadow 0.2s @aurora-ease;
+
+    &:hover,
+    &:focus {
+        color: lighten(@aurora-cyan, 8%);
+        text-shadow: 0 0 8px fade(@aurora-cyan, 40%);
+    }
+}
+
+h1, h2, h3, h4 {
+    color: var(--aurora-text);
+    letter-spacing: -0.01em;
+}
+
+// ---------------------------------------------------------------------
+// Header
+// ---------------------------------------------------------------------
+
+.App-header {
+    .aurora-glass(@aurora-blur-lg, 0.55);
+    border-bottom: 1px solid var(--aurora-mist-2);
+    box-shadow: 0 8px 32px -16px fade(#000, 80%);
+    transition: background 0.4s @aurora-ease;
+}
+
+.Header-title,
+.Header-logo {
+    color: var(--aurora-text);
+}
+
+.Header-title {
+    font-weight: 700;
+    .aurora-text-gradient();
+    .aurora-shimmer(12s);
+}
+
+.Header-controls {
+    .Button {
+        background: transparent;
+        color: var(--aurora-text);
+        border: 1px solid transparent;
+        transition: all 0.2s @aurora-ease;
+
+        &:hover,
+        &:focus {
+            background: var(--aurora-mist-1);
+            border-color: var(--aurora-mist-2);
+            color: #fff;
+        }
+    }
+}
+
+.App-navigation {
+    .aurora-glass();
+    border-radius: @aurora-radius-lg;
+    margin: 16px 0;
+    padding: 4px;
+}
+
+// ---------------------------------------------------------------------
+// Sidebar navigation
+// ---------------------------------------------------------------------
+
+.IndexPage-nav,
+.Sidebar {
+    .Button,
+    .NavItem {
+        background: transparent;
+        color: var(--aurora-text-muted);
+        border-radius: @aurora-radius-md;
+        transition: all 0.2s @aurora-ease;
+        position: relative;
+        overflow: hidden;
+
+        .icon {
+            color: var(--aurora-text-muted);
+            transition: color 0.2s @aurora-ease;
+        }
+
+        &:hover {
+            background: var(--aurora-mist-1);
+            color: var(--aurora-text);
+            transform: translateX(2px);
+
+            .icon { color: @aurora-cyan; }
+        }
+
+        &.active,
+        &--active {
+            background: var(--aurora-mist-2);
+            color: #fff;
+
+            .icon { color: @aurora-cyan; }
+
+            &::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 20%;
+                bottom: 20%;
+                width: 3px;
+                border-radius: 0 3px 3px 0;
+                background: @aurora-gradient;
+                box-shadow: 0 0 12px fade(@aurora-cyan, 60%);
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
+// Discussion list
+// ---------------------------------------------------------------------
+
+.DiscussionList {
+    border-radius: @aurora-radius-lg;
+    // No overflow: hidden — each .DiscussionListItem now carries its
+    // own border-radius (line ~192), and the per-item controls dropdown
+    // (the ⋯ menu rendered inside each card) needs to extend past the
+    // card edges. Clipping the list trapped those menus inside the
+    // list's bounding box and they appeared cut off / invisible.
+}
+
+.DiscussionListItem {
+    .aurora-glass(@aurora-blur, 0.35);
+    border: 1px solid var(--aurora-mist-1);
+    border-radius: @aurora-radius-md;
+    margin-bottom: 10px;
+    // Each card spawns its own stacking context via the
+    // backdrop-filter inside .aurora-glass(...), so a Dropdown rendered
+    // INSIDE one card would paint beneath the NEXT card in DOM order
+    // (its stacking context is above this one). Make the card itself
+    // positionable so we can lift it when a dropdown opens or anything
+    // inside it gains focus.
+    position: relative;
+    z-index: 1;
+
+    // When the per-item controls dropdown is open Flarum toggles
+    // .open onto the .Dropdown wrapper; :focus-within is the belt-and-
+    // suspenders fallback for browsers / states that miss the class.
+    &:focus-within,
+    &:has(.Dropdown.open) {
+        z-index: 10;
+    }
+
+    // Asymmetric padding: extra room on the right because Flarum
+    // renders the per-item controls dropdown (⋯) for mods/admins
+    // absolutely-positioned in the top-right of the card. With the
+    // previous 14/18 the avatar pressed against the left edge and
+    // the dropdown trigger pressed against the right edge.
+    padding: 18px 56px 18px 26px;
+    transition: transform 0.25s @aurora-ease, background 0.25s @aurora-ease, border-color 0.25s @aurora-ease, box-shadow 0.25s @aurora-ease;
+    animation: aurora-fade-up 0.4s @aurora-ease both;
+
+    // Tighter inset on narrow viewports so the title doesn't get
+    // crunched to 2-3 lines. The dropdown trigger still has room
+    // because the reply-count badge sits next to it, not behind it,
+    // on this width.
+    @media (max-width: 767.98px) {
+        padding: 14px 16px;
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        background: rgba(var(--aurora-surface-2-rgb), 0.7);
+        border-color: var(--aurora-mist-3);
+        box-shadow:
+            0 12px 28px -12px fade(#000, 60%),
+            0 0 0 1px fade(@aurora-cyan, 25%);
+    }
+
+    &-title {
+        color: var(--aurora-text);
+        font-weight: 600;
+
+        &.unread {
+            .aurora-text-gradient();
+        }
+    }
+
+    &-info,
+    &-count {
+        color: var(--aurora-text-muted);
+    }
+
+    &-count.unread {
+        background: @aurora-gradient;
+        color: #fff;
+        border-radius: 999px;
+        padding: 2px 10px;
+        box-shadow: @aurora-glow-cool;
+        animation: aurora-pulse 2.4s ease-out infinite;
+    }
+}
+
+// ---------------------------------------------------------------------
+// Buttons
+// ---------------------------------------------------------------------
+
+.Button {
+    border-radius: @aurora-radius-md;
+    border: 1px solid var(--aurora-mist-2);
+    background: var(--aurora-mist-1);
+    color: var(--aurora-text);
+    transition: all 0.2s @aurora-ease;
+    font-weight: 500;
+
+    &:hover,
+    &:focus {
+        background: var(--aurora-mist-2);
+        color: #fff;
+        border-color: var(--aurora-mist-3);
+        transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+        .aurora-focus-ring();
+    }
+
+    &--primary {
+        background: @aurora-gradient;
+        .aurora-shimmer(10s);
+        border-color: transparent;
+        color: #fff;
+        box-shadow: 0 8px 24px -10px fade(@aurora-violet, 70%);
+
+        &:hover,
+        &:focus {
+            background: @aurora-gradient;
+            transform: translateY(-2px);
+            box-shadow:
+                0 12px 32px -10px fade(@aurora-violet, 80%),
+                @aurora-glow-cool;
+        }
+    }
+
+    &--flat {
+        background: transparent;
+        border-color: transparent;
+
+        &:hover {
+            background: var(--aurora-mist-1);
+        }
+    }
+
+    &--icon {
+        border-radius: 999px;
+    }
+}
+
+// ---------------------------------------------------------------------
+// Posts
+// ---------------------------------------------------------------------
+
+.PostStream {
+    .Post {
+        .aurora-glass(@aurora-blur, 0.4);
+        border: 1px solid var(--aurora-mist-1);
+        border-radius: @aurora-radius-lg;
+        padding: 22px 26px;
+        margin-bottom: 18px;
+        transition: border-color 0.25s @aurora-ease, transform 0.25s @aurora-ease;
+        animation: aurora-fade-up 0.45s @aurora-ease both;
+
+        &:hover {
+            border-color: var(--aurora-mist-3);
+        }
+
+        &-header,
+        &-footer {
+            color: var(--aurora-text-muted);
+        }
+
+        &-body {
+            color: var(--aurora-text);
+            line-height: 1.65;
+
+            a {
+                color: @aurora-cyan;
+                text-decoration: underline;
+                text-decoration-color: fade(@aurora-cyan, 40%);
+                text-underline-offset: 3px;
+            }
+
+            blockquote {
+                background: var(--aurora-mist-1);
+                border-left: 3px solid;
+                border-image: @aurora-gradient 1;
+                border-radius: 0 @aurora-radius-sm @aurora-radius-sm 0;
+                padding: 12px 16px;
+                color: var(--aurora-text-muted);
+            }
+
+            code {
+                background: var(--aurora-surface-3);
+                color: @aurora-amber;
+                padding: 2px 6px;
+                border-radius: @aurora-radius-sm;
+                font-size: 0.9em;
+            }
+
+            pre {
+                background: var(--aurora-surface-1);
+                border: 1px solid var(--aurora-mist-1);
+                border-radius: @aurora-radius-md;
+                padding: 14px 16px;
+                overflow-x: auto;
+
+                code {
+                    background: transparent;
+                    color: var(--aurora-text);
+                    padding: 0;
+                }
+            }
+        }
+    }
+}
+
+.PostUser-name a {
+    .aurora-text-gradient();
+    font-weight: 600;
+    text-decoration: none;
+}
+
+// ---------------------------------------------------------------------
+// Avatars
+// ---------------------------------------------------------------------
+
+.Avatar {
+    box-shadow:
+        0 0 0 2px var(--aurora-surface-1),
+        0 0 0 3px fade(@aurora-cyan, 35%);
+    transition: box-shadow 0.25s @aurora-ease, transform 0.25s @aurora-ease;
+
+    &:hover {
+        transform: scale(1.04);
+        box-shadow:
+            0 0 0 2px var(--aurora-surface-1),
+            0 0 0 3px fade(@aurora-pink, 60%),
+            @aurora-glow-warm;
+    }
+}
+
+// ---------------------------------------------------------------------
+// Composer
+// ---------------------------------------------------------------------
+
+.Composer {
+    .aurora-glass(@aurora-blur-lg, 0.7);
+    border-top: 1px solid var(--aurora-mist-2);
+    box-shadow: 0 -16px 48px -20px fade(#000, 80%);
+
+    &-header,
+    &-footer {
+        background: transparent;
+        color: var(--aurora-text);
+    }
+
+    .TextEditor textarea,
+    .TextEditor [contenteditable] {
+        background: var(--aurora-surface-1);
+        color: var(--aurora-text);
+        border: 1px solid var(--aurora-mist-2);
+        border-radius: @aurora-radius-md;
+
+        &:focus {
+            border-color: fade(@aurora-cyan, 70%);
+            box-shadow: 0 0 0 3px fade(@aurora-cyan, 20%);
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
+// Form inputs
+// ---------------------------------------------------------------------
+
+.FormControl,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea {
+    background: var(--aurora-surface-1);
+    color: var(--aurora-text);
+    border: 1px solid var(--aurora-mist-2);
+    border-radius: @aurora-radius-md;
+    transition: border-color 0.2s @aurora-ease, box-shadow 0.2s @aurora-ease;
+
+    &::placeholder {
+        color: var(--aurora-text-dim);
+    }
+
+    &:focus {
+        border-color: fade(@aurora-cyan, 70%);
+        box-shadow: 0 0 0 3px fade(@aurora-cyan, 20%);
+        outline: none;
+    }
+}
+
+// ---------------------------------------------------------------------
+// Dropdowns & modals
+// ---------------------------------------------------------------------
+
+.Dropdown-menu {
+    .aurora-glass(@aurora-blur-lg, 0.85);
+    border-radius: @aurora-radius-md;
+    border: 1px solid var(--aurora-mist-2);
+    box-shadow: 0 20px 48px -20px fade(#000, 80%);
+    padding: 6px;
+    // Lift dropdown menus above sibling .DiscussionListItem cards.
+    // Each item's `.aurora-glass(...)` mixin applies `backdrop-filter`,
+    // which spawns its own stacking context — without an explicit
+    // z-index here the menu rendered inside one card can be painted
+    // beneath the next card in the list. 1050 sits below Flarum's
+    // modal layer (1100+) but above ordinary content.
+    z-index: 1050;
+
+    > li > a {
+        color: var(--aurora-text);
+        border-radius: @aurora-radius-sm;
+        padding: 8px 12px;
+
+        &:hover,
+        &:focus {
+            background: var(--aurora-mist-2);
+            color: #fff;
+        }
+    }
+}
+
+.Modal-content {
+    .aurora-glass(@aurora-blur-lg, 0.85);
+    border-radius: @aurora-radius-lg;
+    border: 1px solid var(--aurora-mist-2);
+    box-shadow: 0 32px 80px -24px fade(#000, 80%);
+    color: var(--aurora-text);
+}
+
+.Modal-header {
+    border-bottom: 1px solid var(--aurora-mist-1);
+
+    h3 {
+        .aurora-text-gradient();
+    }
+}
+
+.Modal-footer {
+    border-top: 1px solid var(--aurora-mist-1);
+}
+
+// ---------------------------------------------------------------------
+// Badges, labels, tags
+// ---------------------------------------------------------------------
+
+.Badge {
+    background: @aurora-gradient;
+    color: #fff;
+    box-shadow: @aurora-glow-cool;
+}
+
+.TagLabel {
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-weight: 500;
+    box-shadow: 0 0 0 1px var(--aurora-mist-1) inset;
+    transition: transform 0.2s @aurora-ease, box-shadow 0.2s @aurora-ease;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow:
+            0 0 0 1px var(--aurora-mist-3) inset,
+            0 6px 16px -8px fade(#000, 60%);
+    }
+}
+
+// ---------------------------------------------------------------------
+// Notifications
+// ---------------------------------------------------------------------
+
+.NotificationList {
+    .aurora-glass(@aurora-blur-lg, 0.85);
+    border-radius: @aurora-radius-lg;
+    border: 1px solid var(--aurora-mist-2);
+
+    &-header {
+        background: transparent;
+        border-bottom: 1px solid var(--aurora-mist-1);
+    }
+}
+
+.Notification {
+    transition: background 0.2s @aurora-ease;
+
+    &:hover {
+        background: var(--aurora-mist-1);
+    }
+
+    &.unread {
+        background: linear-gradient(90deg, fade(@aurora-violet, 12%) 0%, transparent 60%);
+
+        &::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: @aurora-gradient;
+            margin-right: 8px;
+            box-shadow: @aurora-glow-cool;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
+// Alerts
+// ---------------------------------------------------------------------
+
+.Alert {
+    .aurora-glass();
+    border-radius: @aurora-radius-md;
+    color: var(--aurora-text);
+
+    &--success { border-color: fade(@aurora-teal, 50%); }
+    &--error   { border-color: fade(@aurora-pink, 60%); }
+    &--warning { border-color: fade(@aurora-amber, 60%); }
+}
+
+// ---------------------------------------------------------------------
+// Hero — width clamp
+//
+// Without this, .Page-hero spans the full viewport on wide screens and
+// the gradient banner looks oversized. Matches the Mosaic theme's clamp
+// (max 1600px, 32px gutter, 20px on narrow viewports) so Aurora's hero
+// lines up at the same width on both themes.
+// ---------------------------------------------------------------------
+
+.IndexPage .Page-hero {
+    max-width: 1600px !important;
+    width: auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1100px) {
+    .IndexPage .Page-hero {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}
+
+// ---------------------------------------------------------------------
+// Hero
+// ---------------------------------------------------------------------
+
+.Hero {
+    background: @aurora-gradient;
+    .aurora-shimmer(14s);
+    color: #fff;
+    border-radius: @aurora-radius-xl;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+        0 24px 64px -24px fade(@aurora-violet, 70%),
+        inset 0 1px 0 fade(#fff, 12%);
+
+    &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(60% 80% at 80% 0%, fade(#fff, 18%) 0%, transparent 60%),
+            radial-gradient(40% 60% at 0% 100%, rgba(var(--aurora-surface-0-rgb), 0.3) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .container { position: relative; z-index: 1; }
+
+    h2 { text-shadow: 0 2px 24px fade(#000, 30%); }
+}
+
+// ---------------------------------------------------------------------
+// Scrollbar
+// ---------------------------------------------------------------------
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--aurora-surface-1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: @aurora-gradient;
+    border-radius: 999px;
+    border: 2px solid var(--aurora-surface-1);
+
+    &:hover {
+        background: @aurora-gradient-warm;
+    }
+}
+
+// ---------------------------------------------------------------------
+// Selection
+// ---------------------------------------------------------------------
+
+::selection {
+    background: fade(@aurora-violet, 55%);
+    color: #fff;
+}
+
+// ---------------------------------------------------------------------
+// Palette picker (user-facing theme switcher in the header)
+// ---------------------------------------------------------------------
+
+.AuroraPaletteButton {
+    position: relative;
+    background: var(--aurora-mist-1);
+    border: 1px solid var(--aurora-mist-2);
+    color: var(--aurora-text);
+    border-radius: 999px;
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s @aurora-ease, box-shadow 0.2s @aurora-ease, border-color 0.2s @aurora-ease;
+
+    &::before {
+        content: "";
+        display: block;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--aurora-gradient);
+        box-shadow: 0 0 0 2px var(--aurora-surface-1), var(--aurora-glow, @aurora-glow-cool);
+    }
+
+    &:hover {
+        transform: translateY(-1px);
+        border-color: var(--aurora-mist-3);
+        box-shadow: @aurora-glow-cool;
+    }
+
+    // Desktop default: keep the button a compact gradient circle in
+    // HeaderSecondary. The label is still in the DOM for assistive tech
+    // and is reused by the mobile drawer override below.
+    &-label {
+        display: none;
+    }
+}
+
+// `.App-drawer` is Flarum 2's top-level app shell — it wraps everything
+// on every viewport, so the selector alone matches on desktop too.
+// Flarum only renders it as a slid-out menu under the phone breakpoint
+// (`max-width: 767.98px`), so the override is gated on the same media
+// query. Otherwise the desktop secondary header would also turn into a
+// full-width row.
+@media (max-width: 767.98px) {
+.App-drawer .AuroraPaletteButton {
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px 16px;
+    gap: 10px;
+
+    &::before {
+        // Shrink the gradient swatch slightly so it visually weighs the
+        // same as the moon/sun icon used by the theme-toggle row.
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        box-shadow: none;
+    }
+
+    &-label {
+        display: inline;
+        font-weight: 500;
+    }
+
+    &:hover {
+        transform: none;
+        box-shadow: none;
+        background: var(--aurora-mist-1);
+    }
+}
+}
+
+.AuroraPalettePopover {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 100;
+    width: 280px;
+    padding: 14px;
+    .aurora-glass(@aurora-blur-lg, 0.9);
+    border-radius: @aurora-radius-lg;
+    box-shadow: 0 24px 64px -20px fade(#000, 80%);
+    transform-origin: top right;
+    animation: aurora-fade-up 0.18s @aurora-ease both;
+
+    &-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--aurora-text-dim);
+        margin: 0 0 10px 4px;
+        font-weight: 600;
+    }
+
+    &-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+}
+
+.AuroraPaletteSwatch {
+    background: transparent;
+    border: 1px solid var(--aurora-mist-1);
+    border-radius: @aurora-radius-md;
+    padding: 8px 6px 7px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: transform 0.18s @aurora-ease, border-color 0.18s @aurora-ease, background 0.18s @aurora-ease;
+
+    &-swatch {
+        width: 100%;
+        height: 28px;
+        border-radius: @aurora-radius-sm;
+        box-shadow: inset 0 0 0 1px fade(#fff, 8%);
+    }
+
+    &-label {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--aurora-text-muted);
+    }
+
+    &:hover {
+        border-color: var(--aurora-mist-3);
+        background: var(--aurora-mist-1);
+        transform: translateY(-2px);
+
+        .AuroraPaletteSwatch-label { color: var(--aurora-text); }
+    }
+
+    &--active {
+        border-color: transparent;
+        background: var(--aurora-mist-2);
+        position: relative;
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: var(--aurora-gradient);
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+                    mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .AuroraPaletteSwatch-label {
+            color: #fff;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
+// Hero widgets — stat tiles embedded in the welcome hero
+// ---------------------------------------------------------------------
+
+.HeroWidgets {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 22px;
+    position: relative;
+    z-index: 1;
+}
+
+.HeroWidget {
+    .aurora-glass(@aurora-blur, 0.28);
+    border-radius: @aurora-radius-md;
+    padding: 12px 14px;
+    color: #fff;
+    border-color: fade(#fff, 18%);
+    box-shadow: 0 8px 24px -16px fade(#000, 50%);
+
+    &-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.85;
+        font-weight: 600;
+    }
+
+    &-value {
+        margin-top: 4px;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.1;
+    }
+
+    .icon {
+        width: 13px;
+        height: 13px;
+    }
+}
+
+@media (max-width: 700px) {
+    .HeroWidgets { grid-template-columns: repeat(2, 1fr); }
+}
+
+// ---------------------------------------------------------------------
+// Reduced motion
+// ---------------------------------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+    body::before,
+    body::after,
+    .Header-title,
+    .Hero,
+    .Button--primary,
+    .DiscussionListItem-count.unread {
+        animation: none !important;
+    }
+
+    .DiscussionListItem,
+    .Post {
+        animation: none !important;
+    }
+}
+
+// ---------------------------------------------------------------------
+// Admin feature toggles — applyThemeVariables() in forum/index.ts
+// adds these body classes when the corresponding admin setting is
+// off. Previously the classes were added but no CSS targeted them,
+// so the toggles were cosmetic (audit F2).
+// ---------------------------------------------------------------------
+
+// Animate aurora background — turn every animation + transition off
+// when disabled. Aurora ships heavy animated backdrops + ripple
+// effects + button hover transitions; a forum operator who wants a
+// "static" look needs them ALL gone, not just the backdrop blobs.
+// `* { animation: none }` is the broad-brush hammer that achieves
+// that without enumerating every selector that animates. Restrict to
+// `body.aurora-no-animation` so it only fires when explicitly opted
+// out of.
+body.aurora-no-animation,
+body.aurora-no-animation *,
+body.aurora-no-animation *::before,
+body.aurora-no-animation *::after {
+    animation: none !important;
+    transition: none !important;
+}
+
+// Glassmorphism — opt-out replaces the frosted-blur surfaces with a
+// flat panel. Targets the helper class the theme applies to
+// .Header, .DiscussionListItem, .Post, etc. Removing the
+// backdrop-filter alone leaves a translucent-with-no-blur look; we
+// also swap to the solid surface variable so the panels read as
+// proper flat cards.
+body.aurora-no-glass {
+    .Header-controls,
+    .App-header,
+    .Hero,
+    .DiscussionListItem,
+    .Post,
+    .Dropdown-menu,
+    .Modal-content {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: var(--aurora-surface-2, var(--surface, #11193d)) !important;
+    }
+}
+
+// Glow effects — drop the box-shadow glow variables to `none`. The
+// theme references --aurora-glow-cool / --aurora-glow-warm in
+// multiple selectors; nulling them centrally cleanly disables the
+// glow everywhere it was applied without needing per-selector
+// overrides.
+body.aurora-no-glow {
+    --aurora-glow-cool: none;
+    --aurora-glow-warm: none;
+    --aurora-glow-accent: none;
+}
