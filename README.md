@@ -2,13 +2,21 @@
 
 > **Read-only archive of released versions of ernestdefoe/aurora.** Not for installation: use [Packagist](https://packagist.org/packages/ernestdefoe/aurora) or the [upstream repository](https://github.com/ernestdefoe/aurora).
 
-**0** versions archived · Latest: [`3.0.2`](https://github.com/flarchive/ernestdefoe-aurora/tree/archive/v3.0.2) · License: `MIT` · Flarum: `^2.0.0-beta`
+**9** versions archived · Latest: [`3.0.2`](https://github.com/flarchive/ernestdefoe-aurora/tree/archive/v3.0.2) · License: `MIT` · Flarum: `^2.0.0-beta`
 
 ## Archived Versions
 
 | Version | Released | Flarum | Source |
 |---|---|---|---|
-| — | — | — | — |
+| `1.0.0` | 2026-05-21 | `^1.8.0` | [Browse](https://github.com/flarchive/ernestdefoe-aurora/tree/archive/v1.0.0) |
+| `1.0.1` | 2026-05-21 | `^1.8.0` | [Browse](https://github.com/flarchive/ernestdefoe-aurora/tree/archive/v1.0.1) |
+| `1.0.2` | 2026-06-09 | `^1.8.0` | [Browse](https://github.com/flarchive/ernestdefoe-aurora/tree/archive/v1.0.2) |
+| `1.0.3` | 2026-08-15 | `^1.8.0` | [Browse](https://github.com/flarchive/ernestdefoe-aurora/tree/archive/v1.0.3) |
+| `2.0.0` | 2026-05-21 | `^2.0.0-beta` | [Browse](https://github.com/flarchive/ernestdefoe-aurora/tree/archive/v2.0.0) |
+| `2.0.1` | 2026-05-21 | `^2.0.0-beta` | [Browse](https://github.com/flarchive/ernestdefoe-aurora/tree/archive/v2.0.1) |
+| `3.0.0` | 2026-05-26 | `^2.0.0-beta` | [Browse](https://github.com/flarchive/ernestdefoe-aurora/tree/archive/v3.0.0) |
+| `3.0.1` | 2026-06-21 | `^2.0.0-beta` | [Browse](https://github.com/flarchive/ernestdefoe-aurora/tree/archive/v3.0.1) |
+| `3.0.2` | 2026-10-05 | `^2.0.0-beta` | [Browse](https://github.com/flarchive/ernestdefoe-aurora/tree/archive/v3.0.2) |
 
 Catalog entry: [packages/ernestdefoe-aurora.json](https://github.com/flarchive/archive-index/blob/main/packages/ernestdefoe-aurora.json)
 
