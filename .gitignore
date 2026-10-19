@@ -1,0 +1,11 @@
+vendor/
+composer.lock
+js/node_modules/
+js/coverage-ts/
+js/dist-typings/
+.idea/
+.vscode/
+.DS_Store
+*.log
+.phpunit.result.cache
+/tests/integration/tmp

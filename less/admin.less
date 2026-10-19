@@ -1,0 +1,74 @@
+// =====================================================================
+// Aurora Theme — admin
+// =====================================================================
+
+@import "variables.less";
+@import "mixins.less";
+@import "animations.less";
+
+.AuroraThemePage {
+    padding: 24px;
+
+    &-hero {
+        .aurora-glass(@aurora-blur-lg, 0.6);
+        border-radius: @aurora-radius-xl;
+        padding: 28px 32px;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: @aurora-gradient;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        h2 {
+            .aurora-text-gradient();
+            font-size: 28px;
+            margin: 0 0 6px;
+        }
+
+        p {
+            color: @aurora-text-muted;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+        }
+    }
+
+    &-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 18px;
+    }
+
+    &-card {
+        .aurora-card();
+        padding: 20px;
+
+        h3 {
+            margin: 0 0 12px;
+            font-size: 16px;
+            color: @aurora-text;
+        }
+
+        .helpText {
+            color: @aurora-text-muted;
+            font-size: 13px;
+        }
+    }
+
+    &-swatch {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        margin-right: 10px;
+        vertical-align: middle;
+        box-shadow: 0 0 0 2px @aurora-mist-2;
+    }
+}
